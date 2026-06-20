@@ -1,11 +1,11 @@
 {
-  "last_run": "2026-06-20T16:05:48.996673+00:00",
+  "last_run": "2026-06-20T16:10:49.097032+00:00",
   "watches": [
     {
       "id": "learn2swim-stage1-morley",
       "name": "Learn2Swim - Stage 2",
       "url": "https://activeleeds.courseprogress.co.uk/onlinejoining/classes-results?filter=%7B%22showFullCourses%22:false,%22centre%22:7,%22courseGroupCategory%22:%5B1%5D%7D",
-      "checked_at": "2026-06-20T16:05:48.996823+00:00",
+      "checked_at": "2026-06-20T16:10:49.097054+00:00",
       "matched": true,
       "status": "available",
       "snippet": "Learn2Swim - Stage 2 Sunday 15:00 - 15:30 Start Date 21 June 2026 Book this course Spaces left: 1 out of 8",
@@ -30,112 +30,11 @@
       "id": "zoopla-ls27-3bed",
       "name": "LS27 \u00b7 3+ beds under \u00a3275k",
       "url": "https://www.zoopla.co.uk/for-sale/property/ls27/?beds_min=3&price_max=275000&q=ls27&search_source=for-sale",
-      "checked_at": "2026-06-20T16:05:57.926736+00:00",
-      "matched": true,
-      "status": "available",
-      "listing_count": 21,
-      "listings": [
-        {
-          "price": 120000,
-          "price_display": "\u00a3120,000",
-          "beds": 4,
-          "baths": 2,
-          "receptions": 2,
-          "address": "",
-          "url": "https://www.zoopla.co.uk/for-sale/details/73464165/",
-          "action_url": "https://www.zoopla.co.uk/for-sale/details/73464165/",
-          "action_label": "View property"
-        },
-        {
-          "price": 145000,
-          "price_display": "\u00a3145,000",
-          "beds": 3,
-          "baths": 2,
-          "receptions": 1,
-          "address": "",
-          "url": "https://www.zoopla.co.uk/for-sale/details/72939073/",
-          "action_url": "https://www.zoopla.co.uk/for-sale/details/72939073/",
-          "action_label": "View property"
-        },
-        {
-          "price": 170000,
-          "price_display": "\u00a3170,000",
-          "beds": 3,
-          "baths": 1,
-          "receptions": 1,
-          "address": "Offers over",
-          "url": "https://www.zoopla.co.uk/for-sale/details/73040156/",
-          "action_url": "https://www.zoopla.co.uk/for-sale/details/73040156/",
-          "action_label": "View property"
-        },
-        {
-          "price": 185000,
-          "price_display": "\u00a3185,000",
-          "beds": 3,
-          "baths": 1,
-          "receptions": 1,
-          "address": "",
-          "url": "https://www.zoopla.co.uk/for-sale/details/72750031/",
-          "action_url": "https://www.zoopla.co.uk/for-sale/details/72750031/",
-          "action_label": "View property"
-        },
-        {
-          "price": 190000,
-          "price_display": "\u00a3190,000",
-          "beds": 3,
-          "baths": 1,
-          "receptions": 0,
-          "address": "",
-          "url": "https://www.zoopla.co.uk/for-sale/details/72445843/",
-          "action_url": "https://www.zoopla.co.uk/for-sale/details/72445843/",
-          "action_label": "View property"
-        },
-        {
-          "price": 210000,
-          "price_display": "\u00a3210,000",
-          "beds": 3,
-          "baths": 1,
-          "receptions": 1,
-          "address": "",
-          "url": "https://www.zoopla.co.uk/for-sale/details/71829964/",
-          "action_url": "https://www.zoopla.co.uk/for-sale/details/71829964/",
-          "action_label": "View property"
-        },
-        {
-          "price": 215000,
-          "price_display": "\u00a3215,000",
-          "beds": 3,
-          "baths": 1,
-          "receptions": 1,
-          "address": "",
-          "url": "https://www.zoopla.co.uk/for-sale/details/71910426/",
-          "action_url": "https://www.zoopla.co.uk/for-sale/details/71910426/",
-          "action_label": "View property"
-        },
-        {
-          "price": 215000,
-          "price_display": "\u00a3215,000",
-          "beds": 3,
-          "baths": 2,
-          "receptions": 1,
-          "address": "Offers over",
-          "url": "https://www.zoopla.co.uk/for-sale/details/72265793/",
-          "action_url": "https://www.zoopla.co.uk/for-sale/details/72265793/",
-          "action_label": "View property"
-        }
-      ],
-      "new_listings": [],
-      "new_count": 0,
-      "snippet": "\u00a3120,000 \u00b7 4 bed \u00b7 ; \u00a3145,000 \u00b7 3 bed \u00b7 ; \u00a3170,000 \u00b7 3 bed \u00b7 Offers over; \u00a3185,000 \u00b7 3 bed \u00b7 ; \u00a3190,000 \u00b7 3 bed \u00b7 ; \u00a3210,000 \u00b7 3 bed \u00b7 ; \u00a3215,000 \u00b7 3 bed \u00b7 ; \u00a3215,000 \u00b7 3 bed \u00b7 Offers over \u2026",
-      "signals": {
-        "available": [
-          "21 listings"
-        ],
-        "unavailable": []
-      },
-      "course_hint": "21 listings (none new since last check)",
-      "action_url": "https://www.zoopla.co.uk/for-sale/details/73464165/",
-      "action_label": "View property"
+      "checked_at": "2026-06-20T16:10:59.608669+00:00",
+      "matched": false,
+      "status": "error",
+      "error": "Site blocked the automated check (Cloudflare / bot protection).",
+      "reason": "Bot protection page returned instead of content."
     }
   ]
 }
