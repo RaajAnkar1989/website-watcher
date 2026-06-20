@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watchboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070b12;
+    --bg-elevated: #0f1623;
+    --bg-card: rgba(18, 26, 40, 0.72);
+    --bg-card-hover: rgba(24, 34, 52, 0.88);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.14);
+    --text: #eef2f8;
+    --text-muted: #8b9bb4;
+    --text-dim: #5c6b82;
+    --accent: #34d399;
+    --accent-dim: rgba(52, 211, 153, 0.15);
+    --accent-glow: rgba(52, 211, 153, 0.35);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96, 165, 250, 0.12);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251, 191, 36, 0.12);
+    --rose: #fb7185;
+    --rose-dim: rgba(251, 113, 133, 0.12);
+    --slate: #94a3b8;
+    --slate-dim: rgba(148, 163, 184, 0.12);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    --font: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--font);
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(52, 211, 153, 0.18), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 90% 10%, rgba(96, 165, 250, 0.12), transparent 50%),
+      radial-gradient(ellipse 50% 30% at 50% 100%, rgba(251, 113, 133, 0.08), transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* Header */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 28px 0 24px;
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #34d399, #059669);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 8px 32px var(--accent-glow);
+  }
+
+  .brand-icon svg { width: 22px; height: 22px; color: #042f2e; }
+
+  .brand h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .brand p {
+    margin: 2px 0 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+  }
+
+  .pill.live { border-color: rgba(52, 211, 153, 0.35); color: var(--accent); background: var(--accent-dim); }
+  .pill.warn { border-color: rgba(251, 191, 36, 0.35); color: var(--amber); background: var(--amber-dim); }
+
+  .pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-family: var(--font);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #34d399, #10b981);
+    color: #022c22;
+    box-shadow: 0 4px 20px var(--accent-glow);
+  }
+
+  .btn-primary:hover:not(:disabled) { box-shadow: 0 6px 28px var(--accent-glow); }
+
+  .btn-ghost {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); border-color: var(--border-strong); }
+
+  .btn-danger { color: var(--rose); border-color: rgba(251, 113, 133, 0.25); }
+  .btn-danger:hover { background: var(--rose-dim); }
+
+  .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* Stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+
+  @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .stats { grid-template-columns: 1fr; } }
+
+  .stat {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .stat:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+
+  .stat-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .stat-value.green { color: var(--accent); }
+  .stat-value.amber { color: var(--amber); }
+  .stat-value.rose { color: var(--rose); }
+  .stat-value.blue { color: var(--blue); }
+
+  .stat-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .search-wrap {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--text-dim);
+  }
+
+  .search-wrap input {
+    width: 100%;
+    padding: 10px 12px 10px 38px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.25);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-wrap input:focus { border-color: rgba(52, 211, 153, 0.45); }
+
+  select.filter-select {
+    padding: 10px 32px 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.25);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .toolbar-spacer { flex: 1; }
+
+  /* Watch grid */
+  .watch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 16px;
+  }
+
+  @media (max-width: 420px) { .watch-grid { grid-template-columns: 1fr; } }
+
+  .watch-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    animation: fadeUp 0.4s ease backwards;
+  }
+
+  .watch-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--border-strong);
+  }
+
+  .watch-card.status-available { border-top: 3px solid var(--accent); }
+  .watch-card.status-unavailable { border-top: 3px solid var(--slate); }
+  .watch-card.status-unclear, .watch-card.status-unknown { border-top: 3px solid var(--amber); }
+  .watch-card.status-error { border-top: 3px solid var(--rose); }
+  .watch-card.status-pending { border-top: 3px solid var(--text-dim); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .watch-card-inner { padding: 20px; }
+
+  .watch-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .watch-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+  .status-badge.available { background: var(--accent-dim); color: var(--accent); }
+  .status-badge.unavailable { background: var(--slate-dim); color: var(--slate); }
+  .status-badge.unclear, .status-badge.unknown { background: var(--amber-dim); color: var(--amber); }
+  .status-badge.error { background: var(--rose-dim); color: var(--rose); }
+  .status-badge.pending { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .status-badge.available .status-dot { animation: pulse 2s infinite; }
+
+  .watch-url {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .watch-url a {
+    color: var(--blue);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .watch-url a:hover { text-decoration: underline; }
+
+  .favicon {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.06);
+    display: grid;
+    place-items: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .meta-item {
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid var(--border);
+  }
+
+  .meta-item.full { grid-column: 1 / -1; }
+
+  .meta-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .meta-value {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .meta-value.mono { font-family: var(--mono); font-size: 0.75rem; }
+
+  .spaces-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    margin-top: 8px;
+    overflow: hidden;
+  }
+
+  .spaces-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), #6ee7b7);
+    transition: width 0.6s ease;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .tag {
+    padding: 4px 9px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    font-family: var(--mono);
+    background: var(--blue-dim);
+    color: var(--blue);
+    border: 1px solid rgba(96, 165, 250, 0.2);
+  }
+
+  .tag.mode { background: rgba(255,255,255,0.05); color: var(--text-muted); border-color: var(--border); }
+  .tag.signal-ok { background: var(--accent-dim); color: var(--accent); border-color: rgba(52,211,153,0.2); }
+  .tag.signal-bad { background: var(--rose-dim); color: var(--rose); border-color: rgba(251,113,133,0.2); }
+
+  .insight {
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 14px;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    border: 1px solid var(--border);
+  }
+
+  .insight.success { background: var(--accent-dim); border-color: rgba(52,211,153,0.25); color: #a7f3d0; }
+  .insight.warning { background: var(--amber-dim); border-color: rgba(251,191,36,0.25); color: #fde68a; }
+  .insight.error { background: var(--rose-dim); border-color: rgba(251,113,133,0.25); color: #fecdd3; }
+  .insight.neutral { background: rgba(255,255,255,0.03); color: var(--text-muted); }
+
+  details.evidence {
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  details.evidence summary {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: rgba(0,0,0,0.2);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  details.evidence summary::-webkit-details-marker { display: none; }
+
+  details.evidence summary::after {
+    content: "+";
+    font-size: 1rem;
+    color: var(--text-dim);
+  }
+
+  details.evidence[open] summary::after { content: "−"; }
+
+  .snippet {
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    line-height: 1.65;
+    color: var(--text-muted);
+    background: rgba(0,0,0,0.35);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .snippet mark.kw { background: rgba(96,165,250,0.35); color: #bfdbfe; border-radius: 2px; padding: 0 2px; }
+  .snippet mark.sig-ok { background: rgba(52,211,153,0.35); color: #a7f3d0; border-radius: 2px; padding: 0 2px; }
+  .snippet mark.sig-bad { background: rgba(251,113,133,0.35); color: #fecdd3; border-radius: 2px; padding: 0 2px; }
+
+  .watch-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .watch-actions .btn { flex: 1; padding: 8px 10px; font-size: 0.75rem; }
+
+  /* Empty state */
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 24px;
+    background: var(--bg-card);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+  }
+
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    border-radius: 20px;
+    background: var(--blue-dim);
+    display: grid;
+    place-items: center;
+    color: var(--blue);
+  }
+
+  .empty h2 { margin: 0 0 8px; font-size: 1.25rem; }
+  .empty p { margin: 0 0 24px; color: var(--text-muted); max-width: 400px; margin-left: auto; margin-right: auto; }
+
+  /* Modals */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 8, 16, 0.75);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  .overlay.open { display: flex; }
+
+  .modal {
+    width: 100%;
+    max-width: 520px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+    animation: modalIn 0.25s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .modal h2 {
+    margin: 0 0 6px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .modal-sub { margin: 0 0 22px; font-size: 0.85rem; color: var(--text-muted); }
+
+  .field { margin-bottom: 16px; }
+
+  .field label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .field .hint { font-size: 0.78rem; color: var(--text-dim); margin-top: 6px; line-height: 1.45; }
+
+  .field input, .field select, .field textarea {
+    width: 100%;
+    padding: 11px 13px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: rgba(0,0,0,0.3);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .field input:focus, .field select:focus { border-color: rgba(52,211,153,0.45); }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Toasts */
+  .toasts {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 380px;
+  }
+
+  .toast {
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    animation: toastIn 0.3s ease;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .toast.ok { border-color: rgba(52,211,153,0.35); }
+  .toast.err { border-color: rgba(251,113,133,0.35); }
+  .toast.info { border-color: rgba(96,165,250,0.35); }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* Loading overlay */
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 8, 16, 0.6);
+    backdrop-filter: blur(4px);
+    display: none;
+    place-items: center;
+    z-index: 150;
+  }
+
+  .loading-overlay.show { display: grid; }
+
+  .loading-box {
+    text-align: center;
+    padding: 32px 40px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  footer {
+    margin-top: 48px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  .listing-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .listing-row {
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid var(--border);
+  }
+
+  .listing-row.new {
+    border-color: rgba(52, 211, 153, 0.35);
+    background: var(--accent-dim);
+  }
+
+  .listing-price {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .listing-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .listing-address {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .listing-action {
+    display: inline-flex;
+    margin-top: 2px;
+  }
+
+  .cta-banner {
+    margin-bottom: 14px;
+  }
+
+  .cta-banner .btn {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 0.875rem;
+  }
+
+  .btn-book {
+    background: linear-gradient(135deg, #34d399, #10b981);
+    color: #022c22;
+    box-shadow: 0 4px 20px var(--accent-glow);
+    text-decoration: none;
+  }
+
+  .btn-book:hover { box-shadow: 0 6px 28px var(--accent-glow); opacity: 0.95; }
+
+  .listing-section-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin: 0 0 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </div>
+      <div>
+        <h1>Watchboard</h1>
+        <p id="headerSub">Monitoring websites for availability</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="pill" id="connPill"><span class="pulse"></span> Connecting…</span>
+      <span class="pill" id="lastRunPill">Last check: never</span>
+    </div>
+  </header>
+
+  <section class="stats" id="statsRow"></section>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="searchInput" placeholder="Search watches by name or URL…">
+    </div>
+    <select class="filter-select" id="filterStatus">
+      <option value="all">All statuses</option>
+      <option value="available">Available</option>
+      <option value="unavailable">Full / unavailable</option>
+      <option value="unclear">Unclear</option>
+      <option value="unknown">No match</option>
+      <option value="error">Errors</option>
+      <option value="pending">Not checked</option>
+    </select>
+    <select class="filter-select" id="sortBy">
+      <option value="priority">Sort: priority</option>
+      <option value="name">Sort: name</option>
+      <option value="recent">Sort: recently checked</option>
+    </select>
+    <button class="btn btn-ghost" id="refreshBtn" title="Refresh">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.5 0 4.8 1 6.5 2.6"/><path d="M21 3v6h-6"/></svg>
+      Refresh
+    </button>
+    <button class="btn btn-ghost" id="checkNowBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Check now
+    </button>
+    <button class="btn btn-primary" id="addBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Add watch
+    </button>
+    <button class="btn btn-ghost" id="settingsBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      Settings
+    </button>
+  </div>
+
+  <div class="watch-grid" id="watchList"></div>
+
+  <footer>Watchboard · availability monitoring · schedule set in Settings</footer>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <div id="loadingText">Running checks…</div>
+    <div style="font-size:0.78rem;color:var(--text-dim);margin-top:6px">Browser sites may take 1–2 min each</div>
+  </div>
+</div>
+
+<!-- Add/Edit watch modal -->
+<div class="overlay" id="watchOverlay">
+  <div class="modal">
+    <h2 id="watchModalTitle">Add a watch</h2>
+    <p class="modal-sub">Define what to look for on the page. All keywords must appear near each other.</p>
+    <input type="hidden" id="watchId">
+    <div class="field">
+      <label for="wName">Display name</label>
+      <input type="text" id="wName" placeholder="Morley Swimming – Stage 1">
+    </div>
+    <div class="field">
+      <label for="wUrl">Website URL</label>
+      <input type="url" id="wUrl" placeholder="https://example.com/book">
+    </div>
+    <div class="field">
+      <label for="wMode">Page rendering</label>
+      <select id="wMode">
+        <option value="browser">Modern / JavaScript site (recommended)</option>
+        <option value="simple">Plain HTML page</option>
+      </select>
+      <div class="hint">Use "Modern" for booking portals and SPAs.</div>
+    </div>
+    <div class="field">
+      <label for="wType">Watch type</label>
+      <select id="wType">
+        <option value="availability">Availability (courses, bookings)</option>
+        <option value="listings">Property listings (Zoopla search)</option>
+      </select>
+      <div class="hint">Use "Property listings" for Zoopla/Rightmove search pages. Set keywords to an area like LS27.</div>
+    </div>
+    <div class="field">
+      <label for="wKeywords">Keywords (all must match together)</label>
+      <input type="text" id="wKeywords" placeholder="Learn2Swim - Stage 1, Morley">
+      <div class="hint">Comma-separated. Narrow down to the exact course or slot you care about.</div>
+    </div>
+    <div class="field">
+      <label for="wAvail">Availability signals (optional)</label>
+      <input type="text" id="wAvail" placeholder="book, spaces left, available">
+    </div>
+    <div class="field">
+      <label for="wUnavail">Full / sold-out signals (optional)</label>
+      <input type="text" id="wUnavail" placeholder="full, waiting list, sold out">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="watchCancel">Cancel</button>
+      <button class="btn btn-primary" id="watchSave">Save watch</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div class="overlay" id="settingsOverlay">
+  <div class="modal">
+    <h2>Settings</h2>
+    <p class="modal-sub">GitHub connection for cloud hosting. Not needed when running locally with <code style="font-family:var(--mono);font-size:0.8rem">python3 serve.py</code>.</p>
+    <div class="field">
+      <label for="sOwner">GitHub username</label>
+      <input type="text" id="sOwner" placeholder="yourusername">
+    </div>
+    <div class="field">
+      <label for="sRepo">Repository name</label>
+      <input type="text" id="sRepo" placeholder="website-watcher">
+    </div>
+    <div class="field">
+      <label for="sToken">Personal access token</label>
+      <input type="password" id="sToken" placeholder="ghp_…">
+      <div class="hint">Stored only in this browser. Needs Contents + Actions write access.</div>
+    </div>
+    <div class="field">
+      <label for="sFreq">Check frequency (GitHub Actions cron)</label>
+      <select id="sFreq">
+        <option value="0 7 * * *">Daily at 7:00 UTC</option>
+        <option value="0 7,18 * * *">Twice daily (7:00 & 18:00 UTC)</option>
+        <option value="0 7 * * 1">Weekly (Monday 7:00 UTC)</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="settingsCancel">Cancel</button>
+      <button class="btn btn-primary" id="settingsSave">Save settings</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const API = "https://api.github.com";
+const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
+let localApiAvailable = false;
+let currentConfig = { watches: [] };
+let lastResults = { last_run: null, watches: [] };
+let filterQuery = '';
+let filterStatus = 'all';
+let sortBy = 'priority';
+
+const SERVE_HINT = 'Run from project folder: python3 serve.py (not http.server)';
+
+const STATUS = {
+  available: { label: 'Available', priority: 0 },
+  unclear: { label: 'Unclear', priority: 1 },
+  unknown: { label: 'No match', priority: 2 },
+  unavailable: { label: 'Full', priority: 3 },
+  error: { label: 'Error', priority: 4 },
+  pending: { label: 'Pending', priority: 5 },
+};
+
+const FREQ_LABELS = {
+  '0 7 * * *': 'Daily 7:00 UTC',
+  '0 7,18 * * *': 'Twice daily',
+  '0 7 * * 1': 'Weekly Mon 7:00 UTC',
+};
+
+function getCreds() {
+  return {
+    owner: localStorage.getItem('ww_owner') || '',
+    repo: localStorage.getItem('ww_repo') || '',
+    token: localStorage.getItem('ww_token') || '',
+    freq: localStorage.getItem('ww_freq') || '0 7 * * *',
+  };
+}
+
+function setCreds({ owner, repo, token, freq }) {
+  if (owner !== undefined) localStorage.setItem('ww_owner', owner);
+  if (repo !== undefined) localStorage.setItem('ww_repo', repo);
+  if (token !== undefined) localStorage.setItem('ww_token', token);
+  if (freq !== undefined) localStorage.setItem('ww_freq', freq);
+}
+
+function toast(text, kind = 'info') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.textContent = text;
+  $('toasts').appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(20px)';
+    el.style.transition = '0.3s ease';
+    setTimeout(() => el.remove(), 300);
+  }, kind === 'err' ? 8000 : 4500);
+}
+
+function showLoading(text) {
+  $('loadingText').textContent = text || 'Running checks…';
+  $('loadingOverlay').classList.add('show');
+}
+
+function hideLoading() {
+  $('loadingOverlay').classList.remove('show');
+}
+
+async function ghGetFile(path) {
+  const { owner, repo, token } = getCreds();
+  const res = await fetch(`${API}/repos/${owner}/${repo}/contents/${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`Could not read ${path} (${res.status}). Check Settings.`);
+  const data = await res.json();
+  const content = decodeURIComponent(escape(atob(data.content)));
+  return { content, sha: data.sha };
+}
+
+async function loadConfigFile() {
+  if (isLocal) {
+    const apiRes = await fetch('/api/config?t=' + Date.now());
+    if (apiRes.ok) {
+      localApiAvailable = true;
+      return await apiRes.json();
+    }
+    const fileRes = await fetch('./config.json?t=' + Date.now());
+    if (fileRes.ok) {
+      localApiAvailable = false;
+      return await fileRes.json();
+    }
+    throw new Error('Could not read config. ' + SERVE_HINT);
+  }
+  const { content } = await ghGetFile('config.json');
+  return JSON.parse(content);
+}
+
+async function saveConfigFile(cfg, message) {
+  if (isLocal) {
+    if (!localApiAvailable) throw new Error('Saving needs local server. ' + SERVE_HINT);
+    const res = await fetch('/api/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cfg),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || `Save failed (${res.status}).`);
+    }
+    return;
+  }
+  const { content, sha } = await ghGetFile('config.json');
+  await ghPutFile('config.json', JSON.stringify(cfg, null, 2) + '\n', sha, message);
+}
+
+async function ghPutFile(path, contentStr, sha, message) {
+  const { owner, repo, token } = getCreds();
+  if (!token) throw new Error('Add a GitHub token in Settings first.');
+  const body = { message, content: btoa(unescape(encodeURIComponent(contentStr))), sha };
+  const res = await fetch(`${API}/repos/${owner}/${repo}/contents/${path}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`GitHub rejected update (${res.status}): ${t.slice(0, 180)}`);
+  }
+  return res.json();
+}
+
+async function loadResults() {
+  try {
+    const res = await fetch('./results.json?t=' + Date.now());
+    if (!res.ok) throw new Error('no results');
+    return await res.json();
+  } catch {
+    return { last_run: null, watches: [] };
+  }
+}
+
+function fmtTime(iso) {
+  if (!iso) return 'Never';
+  return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+function fmtRelative(iso) {
+  if (!iso) return 'Never checked';
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function escapeAttr(s) { return escapeHtml(s); }
+
+function shortUrl(u) {
+  try {
+    const url = new URL(u);
+    return url.hostname + url.pathname.slice(0, 40) + (url.pathname.length > 40 ? '…' : '');
+  } catch {
+    return u;
+  }
+}
+
+function domainInitial(u) {
+  try { return new URL(u).hostname.charAt(0).toUpperCase(); } catch { return '?'; }
+}
+
+function resolveStatus(cfgWatch, result) {
+  if (result.error) return 'error';
+  if (result.status) return result.status;
+  if (result.matched === false) return 'unknown';
+  if (!result.checked_at && !lastResults.last_run) return 'pending';
+  return 'pending';
+}
+
+function highlightSnippet(snippet, cfgWatch, result) {
+  if (!snippet) return '';
+  let html = escapeHtml(snippet);
+  const terms = [];
+  (cfgWatch.keywords_all || []).forEach((k) => terms.push({ t: k, cls: 'kw' }));
+  ((result.signals || {}).available || []).forEach((k) => terms.push({ t: k, cls: 'sig-ok' }));
+  ((result.signals || {}).unavailable || []).forEach((k) => terms.push({ t: k, cls: 'sig-bad' }));
+  terms.sort((a, b) => b.t.length - a.t.length);
+  for (const { t, cls } of terms) {
+    if (!t) continue;
+    const re = new RegExp(escapeHtml(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    html = html.replace(re, (m) => `<mark class="${cls}">${m}</mark>`);
+  }
+  return html;
+}
+
+function parseSnippetExtras(snippet) {
+  if (!snippet) return {};
+  const extras = {};
+  const spaces = snippet.match(/spaces left:\s*(\d+)\s*out of\s*(\d+)/i);
+  if (spaces) extras.spaces = { left: +spaces[1], total: +spaces[2] };
+  const start = snippet.match(/start date\s+(\d{1,2}\s+\w+\s+\d{4})/i);
+  if (start) extras.startDate = start[1];
+  const book = snippet.match(/book this course/i);
+  if (book) extras.hasBookAction = true;
+  return extras;
+}
+
+function renderStats(watches, results) {
+  const byId = {};
+  (results.watches || []).forEach((w) => { byId[w.id] = w; });
+  const counts = { total: watches.length, available: 0, attention: 0, error: 0, pending: 0 };
+  watches.forEach((cfg) => {
+    const r = byId[cfg.id] || {};
+    const st = resolveStatus(cfg, r);
+    if (st === 'available') counts.available++;
+    else if (st === 'error') counts.error++;
+    else if (st === 'pending') counts.pending++;
+    else if (st !== 'unavailable') counts.attention++;
+  });
+  $('statsRow').innerHTML = `
+    <div class="stat"><div class="stat-label">Total watches</div><div class="stat-value blue">${counts.total}</div><div class="stat-sub">Active monitors</div></div>
+    <div class="stat"><div class="stat-label">Available now</div><div class="stat-value green">${counts.available}</div><div class="stat-sub">Ready to book</div></div>
+    <div class="stat"><div class="stat-label">Needs review</div><div class="stat-value amber">${counts.attention}</div><div class="stat-sub">Unclear or no match</div></div>
+    <div class="stat"><div class="stat-label">Errors</div><div class="stat-value rose">${counts.error}</div><div class="stat-sub">Check failed</div></div>
+    <div class="stat"><div class="stat-label">Awaiting check</div><div class="stat-value">${counts.pending}</div><div class="stat-sub">${results.last_run ? fmtRelative(results.last_run) : 'Run Check now'}</div></div>`;
+}
+
+function updateHeader(results) {
+  const creds = getCreds();
+  const freq = FREQ_LABELS[creds.freq] || creds.freq;
+  $('lastRunPill').textContent = results.last_run ? `Last check: ${fmtRelative(results.last_run)}` : 'Last check: never';
+
+  const pill = $('connPill');
+  if (isLocal) {
+    if (localApiAvailable) {
+      pill.className = 'pill live';
+      pill.innerHTML = '<span class="pulse"></span> Local · full control';
+      $('headerSub').textContent = `${(currentConfig.watches || []).length} watches · ${freq} when on GitHub`;
+    } else {
+      pill.className = 'pill warn';
+      pill.innerHTML = 'View only · run serve.py';
+      $('headerSub').textContent = 'Read-only mode — start python3 serve.py to edit & check';
+    }
+  } else if (creds.owner && creds.repo && creds.token) {
+    pill.className = 'pill live';
+    pill.innerHTML = '<span class="pulse"></span> GitHub connected';
+    $('headerSub').textContent = `${creds.owner}/${creds.repo} · ${freq}`;
+  } else {
+    pill.className = 'pill warn';
+    pill.textContent = 'GitHub not configured';
+    $('headerSub').textContent = 'Open Settings to connect your repo';
+  }
+}
+
+function renderListingRows(listings, isNew) {
+  if (!listings || !listings.length) return '';
+  return listings.map((item) => {
+    const link = item.action_url || item.url;
+    const label = item.action_label || 'View property';
+    return `
+    <div class="listing-row${isNew ? ' new' : ''}">
+      <div class="listing-price">${escapeHtml(item.price_display || ('£' + Number(item.price || 0).toLocaleString()))}</div>
+      <div class="listing-meta">${escapeHtml(item.beds || '?')} bed · ${escapeHtml(item.baths || '?')} bath · ${escapeHtml(item.receptions || '?')} reception</div>
+      <div class="listing-address">${escapeHtml(item.address || '')}</div>
+      ${link ? `<a class="btn btn-book listing-action" href="${escapeAttr(link)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderWatches(results, configWatches) {
+  const list = $('watchList');
+  const byId = {};
+  (results.watches || []).forEach((w) => { byId[w.id] = w; });
+
+  let all = configWatches.length ? configWatches : (results.watches || []);
+  if (filterQuery) {
+    const q = filterQuery.toLowerCase();
+    all = all.filter((w) =>
+      (w.name || '').toLowerCase().includes(q) ||
+      (w.url || '').toLowerCase().includes(q) ||
+      (w.id || '').toLowerCase().includes(q)
+    );
+  }
+  if (filterStatus !== 'all') {
+    all = all.filter((cfg) => resolveStatus(cfg, byId[cfg.id] || {}) === filterStatus);
+  }
+
+  all = [...all].sort((a, b) => {
+    const ra = byId[a.id] || {};
+    const rb = byId[b.id] || {};
+    if (sortBy === 'name') return (a.name || a.id).localeCompare(b.name || b.id);
+    if (sortBy === 'recent') {
+      const ta = ra.checked_at ? new Date(ra.checked_at).getTime() : 0;
+      const tb = rb.checked_at ? new Date(rb.checked_at).getTime() : 0;
+      return tb - ta;
+    }
+    const pa = STATUS[resolveStatus(a, ra)]?.priority ?? 9;
+    const pb = STATUS[resolveStatus(b, rb)]?.priority ?? 9;
+    return pa - pb;
+  });
+
+  renderStats(configWatches, results);
+
+  if (all.length === 0) {
+    list.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+        <h2>${configWatches.length ? 'No watches match your filters' : 'No watches yet'}</h2>
+        <p>${configWatches.length ? 'Try clearing search or filters.' : 'Add a website to monitor and get notified when spots open up.'}</p>
+        ${!configWatches.length ? '<button class="btn btn-primary" onclick="document.getElementById(\'addBtn\').click()">Add your first watch</button>' : ''}
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = all.map((cfgWatch, i) => {
+    const r = byId[cfgWatch.id] || {};
+    const st = resolveStatus(cfgWatch, r);
+    const info = STATUS[st] || STATUS.pending;
+    const extras = r.spaces || parseSnippetExtras(r.snippet);
+    const parsed = parseSnippetExtras(r.snippet);
+    const spaces = r.spaces || parsed.spaces;
+    const startDate = parsed.startDate;
+    const courseHint = r.course_hint || '';
+    const spread = r.keyword_spread != null ? `${r.keyword_spread} chars apart` : null;
+
+    let insight = '';
+    if (r.listing_count != null && r.listing_count >= 0) {
+      const newTxt = r.new_count > 0
+        ? `<strong>${r.new_count} new</strong> since last check`
+        : 'No new listings since last check';
+      insight = `<div class="insight ${r.new_count > 0 ? 'success' : 'neutral'}"><strong>${r.listing_count} properties found</strong> — ${newTxt}</div>`;
+    } else if (st === 'available') {
+      const spaceTxt = spaces ? `${spaces.left} of ${spaces.total} spaces left` : 'Booking signals detected';
+      insight = `<div class="insight success"><strong>Spot may be open</strong> — ${escapeHtml(spaceTxt)}${startDate ? ` · Starts ${escapeHtml(startDate)}` : ''}</div>`;
+    } else if (st === 'unavailable') {
+      insight = `<div class="insight neutral">Matched your keywords but no availability signals were found nearby.</div>`;
+    } else if (st === 'unknown' && r.reason) {
+      insight = `<div class="insight warning"><strong>No match</strong> — ${escapeHtml(r.reason)}</div>`;
+    } else if (st === 'unclear') {
+      insight = `<div class="insight warning"><strong>Mixed signals</strong> — both available and full wording found. Review evidence below.</div>`;
+    } else if (st === 'error') {
+      insight = `<div class="insight error"><strong>Check failed</strong> — ${escapeHtml((r.error || '').split('\n')[0])}</div>`;
+    } else if (st === 'pending') {
+      insight = `<div class="insight neutral">Not checked yet. Hit <strong>Check now</strong> to scan this page.</div>`;
+    }
+
+    const signalTags = [
+      ...((r.signals || {}).available || []).map((s) => `<span class="tag signal-ok">${escapeHtml(s)}</span>`),
+      ...((r.signals || {}).unavailable || []).map((s) => `<span class="tag signal-bad">${escapeHtml(s)}</span>`),
+    ].join('');
+
+    const kwTags = (cfgWatch.keywords_all || []).map((k) => `<span class="tag">${escapeHtml(k)}</span>`).join('');
+    const pct = spaces ? Math.round((spaces.left / spaces.total) * 100) : 0;
+    const actionUrl = r.action_url || '';
+    const actionLabel = r.action_label || (cfgWatch.type === 'listings' ? 'View listings' : 'Book now');
+
+    return `
+    <article class="watch-card status-${st}" style="animation-delay:${i * 0.05}s">
+      <div class="watch-card-inner">
+        <div class="watch-header">
+          <h3 class="watch-title">${escapeHtml(cfgWatch.name || cfgWatch.id)}</h3>
+          <span class="status-badge ${st}"><span class="status-dot"></span>${info.label}</span>
+        </div>
+        <div class="watch-url">
+          <span class="favicon">${escapeHtml(domainInitial(cfgWatch.url))}</span>
+          <a href="${escapeAttr(cfgWatch.url)}" target="_blank" rel="noopener">${escapeHtml(shortUrl(cfgWatch.url))}</a>
+        </div>
+        ${insight}
+        ${actionUrl ? `
+        <div class="cta-banner">
+          <a class="btn btn-book" href="${escapeAttr(actionUrl)}" target="_blank" rel="noopener">${escapeHtml(actionLabel)}</a>
+        </div>` : ''}
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">Last checked</div>
+            <div class="meta-value">${fmtRelative(r.checked_at)}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Page mode</div>
+            <div class="meta-value">${cfgWatch.mode === 'simple' ? 'Plain HTML' : 'Headless browser'}</div>
+          </div>
+          ${spaces ? `
+          <div class="meta-item full">
+            <div class="meta-label">Capacity</div>
+            <div class="meta-value">${spaces.left} space${spaces.left !== 1 ? 's' : ''} left of ${spaces.total}</div>
+            <div class="spaces-bar"><div class="spaces-fill" style="width:${pct}%"></div></div>
+          </div>` : ''}
+          ${spread ? `
+          <div class="meta-item">
+            <div class="meta-label">Keyword proximity</div>
+            <div class="meta-value mono">${escapeHtml(spread)}</div>
+          </div>` : ''}
+          ${courseHint ? `
+          <div class="meta-item">
+            <div class="meta-label">${r.listing_count != null ? 'Summary' : 'Matched course'}</div>
+            <div class="meta-value">${escapeHtml(courseHint)}</div>
+          </div>` : ''}
+          ${r.listing_count != null ? `
+          <div class="meta-item">
+            <div class="meta-label">Listings parsed</div>
+            <div class="meta-value">${r.listing_count} on page</div>
+          </div>` : ''}
+        </div>
+        ${(r.new_listings || []).length ? `
+        <div class="listing-section-title">New listings</div>
+        <div class="listing-list">${renderListingRows(r.new_listings, true)}</div>` : ''}
+        ${(r.listings || []).length ? `
+        <div class="listing-section-title">${(r.new_listings || []).length ? 'All matched listings' : 'Matched listings'}</div>
+        <div class="listing-list">${renderListingRows(r.listings, false)}</div>` : ''}
+        <div class="tags">${kwTags}<span class="tag mode">${cfgWatch.type === 'listings' ? 'listings' : (cfgWatch.mode || 'browser')}</span></div>
+        ${signalTags ? `<div class="tags" style="margin-top:-8px">${signalTags}</div>` : ''}
+        ${r.snippet ? `
+        <details class="evidence">
+          <summary>Page evidence (${(r.snippet || '').length} chars)</summary>
+          <div class="snippet">${highlightSnippet(r.snippet, cfgWatch, r)}</div>
+        </details>` : ''}
+        ${r.error && r.traceback ? `
+        <details class="evidence">
+          <summary>Technical error log</summary>
+          <div class="snippet">${escapeHtml(r.traceback)}</div>
+        </details>` : ''}
+        <div class="watch-actions">
+          <a class="btn btn-ghost" href="${escapeAttr(cfgWatch.url)}" target="_blank" rel="noopener">Open site</a>
+          <button class="btn btn-ghost" onclick="editWatch('${escapeAttr(cfgWatch.id)}')">Edit</button>
+          <button class="btn btn-ghost btn-danger" onclick="deleteWatch('${escapeAttr(cfgWatch.id)}')">Remove</button>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+async function refresh() {
+  lastResults = await loadResults();
+  if (isLocal) {
+    try { currentConfig = await loadConfigFile(); } catch {
+      currentConfig = { watches: (lastResults.watches || []).map((w) => ({ id: w.id, name: w.name, url: w.url })) };
+    }
+  } else {
+    const { owner, repo } = getCreds();
+    if (owner && repo) {
+      try { currentConfig = await loadConfigFile(); } catch {
+        currentConfig = { watches: (lastResults.watches || []).map((w) => ({ id: w.id, name: w.name, url: w.url })) };
+      }
+    }
+  }
+  updateHeader(lastResults);
+  renderWatches(lastResults, currentConfig.watches || []);
+  if (isLocal && !localApiAvailable) toast(SERVE_HINT, 'err');
+}
+
+function openWatchModal(existing) {
+  $('watchModalTitle').textContent = existing ? 'Edit watch' : 'Add a watch';
+  $('watchId').value = existing ? existing.id : '';
+  $('wName').value = existing ? (existing.name || '') : '';
+  $('wUrl').value = existing ? (existing.url || '') : '';
+  $('wMode').value = existing ? (existing.mode || 'browser') : 'browser';
+  $('wType').value = existing ? (existing.type || 'availability') : 'availability';
+  $('wKeywords').value = existing ? (existing.keywords_all || []).join(', ') : '';
+  $('wAvail').value = existing ? (existing.available_words || []).join(', ') : '';
+  $('wUnavail').value = existing ? (existing.unavailable_words || []).join(', ') : '';
+  $('watchOverlay').classList.add('open');
+}
+
+function closeWatchModal() { $('watchOverlay').classList.remove('open'); }
+
+$('addBtn').onclick = () => openWatchModal(null);
+$('watchCancel').onclick = closeWatchModal;
+$('refreshBtn').onclick = () => refresh().then(() => toast('Dashboard refreshed', 'ok'));
+
+$('searchInput').oninput = (e) => { filterQuery = e.target.value; renderWatches(lastResults, currentConfig.watches || []); };
+$('filterStatus').onchange = (e) => { filterStatus = e.target.value; renderWatches(lastResults, currentConfig.watches || []); };
+$('sortBy').onchange = (e) => { sortBy = e.target.value; renderWatches(lastResults, currentConfig.watches || []); };
+
+window.editWatch = (id) => {
+  const w = (currentConfig.watches || []).find((x) => x.id === id);
+  if (w) openWatchModal(w);
+};
+
+window.deleteWatch = async (id) => {
+  if (!confirm('Remove this watch permanently?')) return;
+  try {
+    const cfg = await loadConfigFile();
+    cfg.watches = (cfg.watches || []).filter((w) => w.id !== id);
+    await saveConfigFile(cfg, `Remove watch: ${id}`);
+    toast('Watch removed', 'ok');
+    await refresh();
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+function slugify(s) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 60) || ('watch-' + Date.now());
+}
+
+$('watchSave').onclick = async () => {
+  const name = $('wName').value.trim();
+  const url = $('wUrl').value.trim();
+  const mode = $('wMode').value;
+  const watchType = $('wType').value;
+  const keywords = $('wKeywords').value.split(',').map((s) => s.trim()).filter(Boolean);
+  const avail = $('wAvail').value.split(',').map((s) => s.trim()).filter(Boolean);
+  const unavail = $('wUnavail').value.split(',').map((s) => s.trim()).filter(Boolean);
+  const existingId = $('watchId').value;
+
+  if (!name || !url || !keywords.length) {
+    toast('Name, URL, and at least one keyword are required.', 'err');
+    return;
+  }
+
+  try {
+    const cfg = await loadConfigFile();
+    cfg.watches = cfg.watches || [];
+    const id = existingId || slugify(name);
+    const newWatch = { id, name, url, mode, keywords_all: keywords };
+    if (watchType === 'listings') {
+      newWatch.type = 'listings';
+      newWatch.listings_site = 'zoopla';
+    }
+    if (avail.length) newWatch.available_words = avail;
+    if (unavail.length) newWatch.unavailable_words = unavail;
+    const idx = cfg.watches.findIndex((w) => w.id === id);
+    if (idx >= 0) cfg.watches[idx] = newWatch;
+    else cfg.watches.push(newWatch);
+    await saveConfigFile(cfg, `${existingId ? 'Update' : 'Add'} watch: ${name}`);
+    closeWatchModal();
+    toast('Watch saved — run Check now to scan it', 'ok');
+    await refresh();
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+$('settingsBtn').onclick = () => {
+  const c = getCreds();
+  $('sOwner').value = c.owner;
+  $('sRepo').value = c.repo;
+  $('sToken').value = c.token;
+  $('sFreq').value = c.freq;
+  $('settingsOverlay').classList.add('open');
+};
+$('settingsCancel').onclick = () => $('settingsOverlay').classList.remove('open');
+
+$('settingsSave').onclick = async () => {
+  const owner = $('sOwner').value.trim();
+  const repo = $('sRepo').value.trim();
+  const token = $('sToken').value.trim();
+  const freq = $('sFreq').value;
+  const prevFreq = getCreds().freq;
+  setCreds({ owner, repo, token, freq });
+
+  if (freq !== prevFreq && token) {
+    try {
+      const { content, sha } = await ghGetFile('.github/workflows/check.yml');
+      const updated = content.replace(/- cron: '.*?'/, `- cron: '${freq}'`);
+      await ghPutFile('.github/workflows/check.yml', updated, sha, 'Update check frequency');
+      toast('Settings and schedule saved', 'ok');
+    } catch (e) {
+      toast('Settings saved, but schedule update failed: ' + e.message, 'err');
+    }
+  } else {
+    toast('Settings saved', 'ok');
+  }
+  $('settingsOverlay').classList.remove('open');
+  await refresh();
+};
+
+$('checkNowBtn').onclick = async () => {
+  if (isLocal) {
+    if (!localApiAvailable) { toast('Check now needs local server. ' + SERVE_HINT, 'err'); return; }
+    $('checkNowBtn').disabled = true;
+    showLoading('Scanning all watches…');
+    try {
+      const res = await fetch('/api/check', { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `Check failed (${res.status}).`);
+      toast('All watches checked successfully', 'ok');
+      await refresh();
+    } catch (e) { toast(e.message, 'err'); }
+    finally { $('checkNowBtn').disabled = false; hideLoading(); }
+    return;
+  }
+  const { owner, repo, token } = getCreds();
+  if (!token) { toast('Add a GitHub token in Settings to trigger checks.', 'err'); return; }
+  try {
+    const res = await fetch(`${API}/repos/${owner}/${repo}/actions/workflows/check.yml/dispatches`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref: 'main' }),
+    });
+    if (!res.ok) throw new Error(`Could not start check (${res.status}).`);
+    toast('Check started on GitHub — refresh in 1–2 minutes', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+document.querySelectorAll('.overlay').forEach((el) => {
+  el.addEventListener('click', (e) => { if (e.target === el) el.classList.remove('open'); });
+});
+
+refresh();
+</script>
+</body>
+</html>
