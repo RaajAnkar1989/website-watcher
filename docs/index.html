@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070b12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Watchboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,10 +46,13 @@
   body {
     margin: 0;
     min-height: 100vh;
+    min-height: 100dvh;
     font-family: var(--font);
     color: var(--text);
     background: var(--bg);
     -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   body::before {
@@ -152,6 +159,7 @@
     justify-content: center;
     gap: 8px;
     padding: 10px 16px;
+    min-height: 44px;
     border-radius: var(--radius-sm);
     border: none;
     font-family: var(--font);
@@ -160,6 +168,8 @@
     cursor: pointer;
     transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
     white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   .btn:active { transform: scale(0.98); }
@@ -793,6 +803,213 @@
     color: var(--text-dim);
     margin: 0 0 8px;
   }
+
+  /* Mobile bottom navigation */
+  .mobile-nav {
+    display: none;
+  }
+
+  .mobile-nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 52px;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font);
+    font-size: 0.65rem;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-nav-btn svg { width: 22px; height: 22px; }
+
+  .mobile-nav-btn:active { background: rgba(255, 255, 255, 0.06); }
+
+  .mobile-nav-btn.primary {
+    color: #022c22;
+    background: linear-gradient(135deg, #34d399, #10b981);
+    box-shadow: 0 4px 16px var(--accent-glow);
+  }
+
+  .mobile-nav-btn.primary:active { opacity: 0.9; }
+
+  /* ---- Mobile layout (phones) ---- */
+  @media (max-width: 640px) {
+    .app {
+      padding: 0 14px calc(96px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .topbar {
+      padding: calc(12px + env(safe-area-inset-top, 0px)) 0 14px;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .brand h1 { font-size: 1.2rem; }
+    .brand p { font-size: 0.75rem; line-height: 1.35; }
+
+    .topbar-actions {
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .pill {
+      justify-content: center;
+      font-size: 0.7rem;
+      padding: 8px 12px;
+    }
+
+    .stats {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      grid-template-columns: unset;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+
+    .stats::-webkit-scrollbar { display: none; }
+
+    .stat {
+      flex: 0 0 148px;
+      scroll-snap-align: start;
+      padding: 14px 16px;
+    }
+
+    .stat-value { font-size: 1.5rem; }
+
+    .toolbar {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 12px;
+      gap: 10px;
+    }
+
+    .search-wrap { min-width: 0; width: 100%; }
+
+    .search-wrap input,
+    select.filter-select,
+    .field input,
+    .field select {
+      font-size: 16px;
+      min-height: 48px;
+    }
+
+    .toolbar-filters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .toolbar-filters select { width: 100%; }
+
+    .toolbar-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .toolbar-actions .btn { width: 100%; }
+
+    .toolbar .btn.hide-mobile { display: none; }
+
+    .watch-grid { grid-template-columns: 1fr; gap: 12px; }
+
+    .watch-card-inner { padding: 16px; }
+
+    .watch-header { flex-direction: column; align-items: flex-start; }
+
+    .watch-title { font-size: 1rem; }
+
+    .meta-grid { grid-template-columns: 1fr; }
+
+    .watch-actions {
+      flex-direction: column;
+    }
+
+    .watch-actions .btn {
+      width: 100%;
+      min-height: 48px;
+      font-size: 0.8125rem;
+    }
+
+    .cta-banner .btn,
+    .btn-book,
+    .listing-action {
+      display: flex;
+      width: 100%;
+      min-height: 48px;
+      justify-content: center;
+    }
+
+    .listing-action { margin-top: 8px; }
+
+    .overlay {
+      padding: 0;
+      align-items: stretch;
+    }
+
+    .modal {
+      max-width: none;
+      min-height: 100dvh;
+      border-radius: 0;
+      border: none;
+      padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(24px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .modal-actions {
+      flex-direction: column-reverse;
+    }
+
+    .modal-actions .btn { width: 100%; min-height: 48px; }
+
+    .toasts {
+      left: 14px;
+      right: 14px;
+      bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+      max-width: none;
+    }
+
+    .toast { font-size: 0.875rem; padding: 14px 16px; }
+
+    footer {
+      margin-top: 24px;
+      padding-bottom: 8px;
+      font-size: 0.7rem;
+      line-height: 1.5;
+    }
+
+    .mobile-nav {
+      display: flex;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 90;
+      gap: 6px;
+      padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+      background: rgba(10, 15, 24, 0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border-strong);
+    }
+
+    .loading-box {
+      margin: 16px;
+      width: calc(100% - 32px);
+    }
+  }
 </style>
 </head>
 <body>
@@ -819,44 +1036,63 @@
   <div class="toolbar">
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="search" id="searchInput" placeholder="Search watches by name or URL…">
+      <input type="search" id="searchInput" placeholder="Search watches…" enterkeyhint="search">
     </div>
-    <select class="filter-select" id="filterStatus">
-      <option value="all">All statuses</option>
-      <option value="available">Available</option>
-      <option value="unavailable">Full / unavailable</option>
-      <option value="unclear">Unclear</option>
-      <option value="unknown">No match</option>
-      <option value="error">Errors</option>
-      <option value="pending">Not checked</option>
-    </select>
-    <select class="filter-select" id="sortBy">
-      <option value="priority">Sort: priority</option>
-      <option value="name">Sort: name</option>
-      <option value="recent">Sort: recently checked</option>
-    </select>
-    <button class="btn btn-ghost" id="refreshBtn" title="Refresh">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.5 0 4.8 1 6.5 2.6"/><path d="M21 3v6h-6"/></svg>
-      Refresh
-    </button>
-    <button class="btn btn-ghost" id="checkNowBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      Check now
-    </button>
-    <button class="btn btn-primary" id="addBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-      Add watch
-    </button>
-    <button class="btn btn-ghost" id="settingsBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      Settings
-    </button>
+    <div class="toolbar-filters">
+      <select class="filter-select" id="filterStatus">
+        <option value="all">All statuses</option>
+        <option value="available">Available</option>
+        <option value="unavailable">Full / unavailable</option>
+        <option value="unclear">Unclear</option>
+        <option value="unknown">No match</option>
+        <option value="error">Errors</option>
+        <option value="pending">Not checked</option>
+      </select>
+      <select class="filter-select" id="sortBy">
+        <option value="priority">Sort: priority</option>
+        <option value="name">Sort: name</option>
+        <option value="recent">Sort: recent</option>
+      </select>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn btn-ghost" id="refreshBtn" title="Refresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.5 0 4.8 1 6.5 2.6"/><path d="M21 3v6h-6"/></svg>
+        Refresh
+      </button>
+      <button class="btn btn-ghost hide-mobile" id="checkNowBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Check now
+      </button>
+      <button class="btn btn-primary hide-mobile" id="addBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Add watch
+      </button>
+      <button class="btn btn-ghost hide-mobile" id="settingsBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Settings
+      </button>
+    </div>
   </div>
 
   <div class="watch-grid" id="watchList"></div>
 
-  <footer>Watchboard · availability monitoring · schedule set in Settings</footer>
+  <footer>Watchboard · tap Check to refresh results on your phone</footer>
 </div>
+
+<nav class="mobile-nav" aria-label="Primary actions">
+  <button type="button" class="mobile-nav-btn" id="mobileCheckBtn" aria-label="Check now">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Check
+  </button>
+  <button type="button" class="mobile-nav-btn primary" id="mobileAddBtn" aria-label="Add watch">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+    Add
+  </button>
+  <button type="button" class="mobile-nav-btn" id="mobileSettingsBtn" aria-label="Settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    Settings
+  </button>
+</nav>
 
 <div class="toasts" id="toasts"></div>
 
@@ -1264,7 +1500,7 @@ function renderWatches(results, configWatches) {
         <div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
         <h2>${configWatches.length ? 'No watches match your filters' : 'No watches yet'}</h2>
         <p>${configWatches.length ? 'Try clearing search or filters.' : 'Add a website to monitor and get notified when spots open up.'}</p>
-        ${!configWatches.length ? '<button class="btn btn-primary" onclick="document.getElementById(\'addBtn\').click()">Add your first watch</button>' : ''}
+        ${!configWatches.length ? '<button class="btn btn-primary" onclick="openWatchModal(null)">Add your first watch</button>' : ''}
       </div>`;
     return;
   }
@@ -1419,8 +1655,12 @@ function openWatchModal(existing) {
 }
 
 function closeWatchModal() { $('watchOverlay').classList.remove('open'); }
+window.openWatchModal = openWatchModal;
 
 $('addBtn').onclick = () => openWatchModal(null);
+$('mobileAddBtn').onclick = () => openWatchModal(null);
+$('mobileCheckBtn').onclick = () => $('checkNowBtn').click();
+$('mobileSettingsBtn').onclick = () => $('settingsBtn').click();
 $('watchCancel').onclick = closeWatchModal;
 $('refreshBtn').onclick = () => refresh().then(() => toast('Dashboard refreshed', 'ok'));
 
@@ -1522,6 +1762,7 @@ $('checkNowBtn').onclick = async () => {
   if (isLocal) {
     if (!localApiAvailable) { toast('Check now needs local server. ' + SERVE_HINT, 'err'); return; }
     $('checkNowBtn').disabled = true;
+    $('mobileCheckBtn').disabled = true;
     showLoading('Scanning all watches…');
     try {
       const res = await fetch('/api/check', { method: 'POST' });
@@ -1530,7 +1771,11 @@ $('checkNowBtn').onclick = async () => {
       toast('All watches checked successfully', 'ok');
       await refresh();
     } catch (e) { toast(e.message, 'err'); }
-    finally { $('checkNowBtn').disabled = false; hideLoading(); }
+    finally {
+      $('checkNowBtn').disabled = false;
+      $('mobileCheckBtn').disabled = false;
+      hideLoading();
+    }
     return;
   }
   const { owner, repo, token } = getCreds();
