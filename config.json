@@ -2,11 +2,11 @@
   "watches": [
     {
       "id": "learn2swim-stage1-morley",
-      "name": "Learn2Swim - Stage 2",
+      "name": "Learn2Swim - Stage 1",
       "url": "https://activeleeds.courseprogress.co.uk/onlinejoining/classes-results?filter=%7B%22showFullCourses%22:false,%22centre%22:7,%22courseGroupCategory%22:%5B1%5D%7D",
       "mode": "browser",
       "keywords_all": [
-        "Learn2Swim - Stage 2"
+        "Learn2Swim - Stage 1"
       ],
       "available_words": [
         "book this course",
