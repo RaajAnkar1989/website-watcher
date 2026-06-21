@@ -2,11 +2,11 @@
   "watches": [
     {
       "id": "learn2swim-stage1-morley",
-      "name": "Learn2Swim - Stage 2",
+      "name": "Learn2Swim - Stage 1",
       "url": "https://activeleeds.courseprogress.co.uk/onlinejoining/classes-results?filter=%7B%22showFullCourses%22:false,%22centre%22:7,%22courseGroupCategory%22:%5B1%5D%7D",
       "mode": "browser",
       "keywords_all": [
-        "Learn2Swim - Stage 2"
+        "Learn2Swim - Stage 1"
       ],
       "available_words": [
         "book this course",
@@ -22,7 +22,7 @@
     },
     {
       "id": "zoopla-ls27-3bed",
-      "name": "LS27 \u00b7 3+ beds under \u00a3275k",
+      "name": "LS27 · 3+ beds under £275k",
       "url": "https://www.zoopla.co.uk/for-sale/property/ls27/?beds_min=3&price_max=275000&q=ls27&search_source=for-sale",
       "mode": "browser",
       "type": "listings",
