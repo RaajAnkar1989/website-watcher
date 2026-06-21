@@ -1171,7 +1171,17 @@
     <div class="field">
       <label for="sToken">Personal access token</label>
       <input type="text" id="sToken" placeholder="github_pat_… or ghp_…" autocapitalize="off" autocomplete="off" spellcheck="false" inputmode="verbatim">
-      <div class="hint">Paste the full token once. It stays in this browser only. Needs <strong>Contents</strong> and <strong>Actions</strong> read/write on repo <strong>website-watcher</strong>. Create at <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener" style="color:var(--blue)">github.com/settings/tokens</a></div>
+      <div class="hint">
+        <strong>Fine-grained token</strong> (recommended checklist at
+        <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener" style="color:var(--blue)">github.com/settings/tokens</a>):
+        <ul style="margin:8px 0 0;padding-left:18px;line-height:1.55">
+          <li>Repository access: <strong>Only website-watcher</strong></li>
+          <li><strong>Contents</strong> → Read and write (add/edit watches)</li>
+          <li><strong>Actions</strong> → Read and write (Check now button)</li>
+          <li><strong>Workflows</strong> → Read and write (only if changing schedule)</li>
+        </ul>
+        Easier option: use a <strong>classic token</strong> with the <strong>repo</strong> scope only.
+      </div>
     </div>
     <div class="field">
       <label for="sFreq">Check frequency (GitHub Actions cron)</label>
@@ -1231,6 +1241,28 @@ function ghHeaders(token) {
   return h;
 }
 
+async function parseGitHubError(res, fallback) {
+  let msg = fallback;
+  try {
+    const data = await res.json();
+    if (data.message) msg = data.message;
+  } catch {
+    /* ignore */
+  }
+  const needed = res.headers.get('X-Accepted-GitHub-Permissions');
+  if (needed) msg += ` (GitHub needs: ${needed})`;
+  return msg;
+}
+
+function permissionHint(perm) {
+  const map = {
+    contents: 'Repository permissions → Contents → Read and write',
+    actions: 'Repository permissions → Actions → Read and write',
+    workflows: 'Repository permissions → Workflows → Read and write',
+  };
+  return map[perm] || perm;
+}
+
 function normalizeToken(raw) {
   return String(raw || '').trim().replace(/\s+/g, '');
 }
@@ -1249,34 +1281,36 @@ async function testGitHubConnection(owner, repo, token) {
   if (!owner || !repo) throw new Error('Enter your GitHub username and repository name.');
   if (!token) throw new Error('Paste your personal access token.');
 
+  const warnings = [];
+
   const repoRes = await fetch(`${API}/repos/${owner}/${repo}`, { headers: ghHeaders(token) });
   if (repoRes.status === 401) {
-    throw new Error('Token rejected (401). Create a new fine-grained token with access to this repo.');
+    throw new Error('Token rejected (401). Paste a fresh token — editing permissions does not update old tokens.');
   }
   if (repoRes.status === 404) {
-    throw new Error(`Repository not found. Use username "${owner}" and repo "${repo}".`);
+    throw new Error(`Repository not found. Use "${owner}" and "${repo}". Also check token has access to this repo.`);
   }
   if (!repoRes.ok) {
-    throw new Error(`GitHub repo check failed (${repoRes.status}).`);
+    throw new Error(await parseGitHubError(repoRes, `GitHub repo check failed (${repoRes.status}).`));
   }
 
   const cfgRes = await fetch(`${API}/repos/${owner}/${repo}/contents/config.json`, { headers: ghHeaders(token) });
   if (cfgRes.status === 403) {
-    throw new Error('Token lacks Contents permission. Set Contents to Read and write for website-watcher.');
+    const detail = await parseGitHubError(cfgRes, 'Cannot read config.json');
+    throw new Error(`${detail}. Fix: ${permissionHint('contents')}. Also confirm "Only select repositories" includes website-watcher.`);
   }
   if (!cfgRes.ok) {
-    throw new Error(`Cannot read config.json (${cfgRes.status}). Check repo name and token scope.`);
+    throw new Error(await parseGitHubError(cfgRes, `Cannot read config.json (${cfgRes.status}).`));
   }
 
   const wfRes = await fetch(`${API}/repos/${owner}/${repo}/actions/workflows/check.yml`, { headers: ghHeaders(token) });
   if (wfRes.status === 403) {
-    throw new Error('Token lacks Actions permission. Set Actions to Read and write for Check now to work.');
-  }
-  if (!wfRes.ok) {
-    throw new Error(`Cannot access workflow (${wfRes.status}).`);
+    warnings.push(`Check now will not work yet. ${permissionHint('actions')}.`);
+  } else if (!wfRes.ok) {
+    warnings.push(`Workflow access issue (${wfRes.status}). ${permissionHint('actions')}.`);
   }
 
-  return true;
+  return { warnings };
 }
 
 function setSettingsStatus(text, kind) {
@@ -1331,7 +1365,10 @@ async function ghGetFile(path) {
     headers: ghHeaders(token),
   });
   if (res.status === 401) throw new Error('Token expired or invalid. Open Settings and paste a new token.');
-  if (res.status === 403) throw new Error('Token lacks permission for this repo. Needs Contents read/write.');
+  if (res.status === 403) {
+    const detail = await parseGitHubError(res, 'Permission denied');
+    throw new Error(`${detail}. ${permissionHint('contents')}`);
+  }
   if (res.status === 404) throw new Error(`Could not find ${path}. Check username and repo in Settings.`);
   if (!res.ok) throw new Error(`Could not read ${path} (${res.status}).`);
   const data = await res.json();
@@ -1385,7 +1422,11 @@ async function ghPutFile(path, contentStr, sha, message) {
     body: JSON.stringify(body),
   });
   if (res.status === 401) throw new Error('Token expired or invalid. Paste a new token in Settings.');
-  if (res.status === 403) throw new Error('Token lacks write permission. Needs Contents read/write.');
+  if (res.status === 403) {
+    const detail = await parseGitHubError(res, 'Write permission denied');
+    const extra = path.includes('.github/workflows') ? permissionHint('workflows') : permissionHint('contents');
+    throw new Error(`${detail}. Fix: ${extra}`);
+  }
   if (!res.ok) {
     const t = await res.text();
     throw new Error(`GitHub rejected update (${res.status}): ${t.slice(0, 180)}`);
@@ -1840,17 +1881,26 @@ $('settingsSave').onclick = async () => {
   $('settingsSave').disabled = true;
   setSettingsStatus('Testing connection to GitHub…', 'neutral');
   try {
-    await testGitHubConnection(owner, repo, token);
+    const { warnings } = await testGitHubConnection(owner, repo, token);
     setCreds({ owner, repo, token, freq });
 
     if (freq !== prevFreq) {
-      const { content, sha } = await ghGetFile('.github/workflows/check.yml');
-      const updated = content.replace(/- cron: '.*?'/, `- cron: '${freq}'`);
-      await ghPutFile('.github/workflows/check.yml', updated, sha, 'Update check frequency');
+      try {
+        const { content, sha } = await ghGetFile('.github/workflows/check.yml');
+        const updated = content.replace(/- cron: '.*?'/, `- cron: '${freq}'`);
+        await ghPutFile('.github/workflows/check.yml', updated, sha, 'Update check frequency');
+      } catch (e) {
+        warnings.push(`Schedule not updated: ${e.message}`);
+      }
     }
 
-    setSettingsStatus('Connected successfully. You can use Check now and Add watch.', 'success');
-    toast('GitHub connected successfully', 'ok');
+    if (warnings.length) {
+      setSettingsStatus('Connected with warnings: ' + warnings.join(' '), 'warning');
+      toast('Connected — but some features need extra token permissions', 'err');
+    } else {
+      setSettingsStatus('Connected successfully. Add watch and Check now should work.', 'success');
+      toast('GitHub connected successfully', 'ok');
+    }
     $('settingsOverlay').classList.remove('open');
     await refresh();
   } catch (e) {
@@ -1890,7 +1940,10 @@ $('checkNowBtn').onclick = async () => {
       body: JSON.stringify({ ref: 'main' }),
     });
     if (res.status === 401) throw new Error('Token invalid. Open Settings and paste your token again.');
-    if (res.status === 403) throw new Error('Token lacks Actions permission. Update token with Actions read/write.');
+    if (res.status === 403) {
+      const detail = await parseGitHubError(res, 'Actions permission denied');
+      throw new Error(`${detail}. Fix: ${permissionHint('actions')}`);
+    }
     if (!res.ok) throw new Error(`Could not start check (${res.status}). Open Settings to reconnect.`);
     toast('Check started on GitHub — refresh in 1–2 minutes', 'ok');
   } catch (e) { toast(e.message, 'err'); }
