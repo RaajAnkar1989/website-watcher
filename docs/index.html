@@ -1188,6 +1188,7 @@
   </div>
 </div>
 
+<script src="./auth.config.js" onerror="/* optional local config */"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const API = "https://api.github.com";
@@ -1236,9 +1237,12 @@ function normalizeToken(raw) {
 
 function ensureGitHubDefaults() {
   const defaults = getGitHubPagesDefaults();
-  if (!defaults) return;
   const c = getCreds();
-  if (!c.owner || !c.repo) setCreds({ owner: c.owner || defaults.owner, repo: c.repo || defaults.repo });
+  const embedded = window.WATCHBOARD_AUTH || {};
+  const owner = c.owner || embedded.owner || defaults?.owner || '';
+  const repo = c.repo || embedded.repo || defaults?.repo || '';
+  const token = c.token || normalizeToken(embedded.token) || '';
+  if (owner || repo || token) setCreds({ owner, repo, token });
 }
 
 async function testGitHubConnection(owner, repo, token) {
