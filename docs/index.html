@@ -1158,19 +1158,20 @@
 <div class="overlay" id="settingsOverlay">
   <div class="modal">
     <h2>Settings</h2>
-    <p class="modal-sub">GitHub connection for cloud hosting. Not needed when running locally with <code style="font-family:var(--mono);font-size:0.8rem">python3 serve.py</code>.</p>
+    <p class="modal-sub">Connect this dashboard to your GitHub repo so Add watch and Check now work from your phone.</p>
+    <div class="insight neutral" id="settingsStatus" style="display:none;margin-bottom:16px"></div>
     <div class="field">
       <label for="sOwner">GitHub username</label>
-      <input type="text" id="sOwner" placeholder="yourusername">
+      <input type="text" id="sOwner" placeholder="RaajAnkar1989" autocapitalize="off" autocomplete="username">
     </div>
     <div class="field">
       <label for="sRepo">Repository name</label>
-      <input type="text" id="sRepo" placeholder="website-watcher">
+      <input type="text" id="sRepo" placeholder="website-watcher" autocapitalize="off" autocomplete="off">
     </div>
     <div class="field">
       <label for="sToken">Personal access token</label>
-      <input type="password" id="sToken" placeholder="ghp_…">
-      <div class="hint">Stored only in this browser. Needs Contents + Actions write access.</div>
+      <input type="text" id="sToken" placeholder="github_pat_… or ghp_…" autocapitalize="off" autocomplete="off" spellcheck="false" inputmode="verbatim">
+      <div class="hint">Paste the full token once. It stays in this browser only. Needs <strong>Contents</strong> and <strong>Actions</strong> read/write on repo <strong>website-watcher</strong>. Create at <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener" style="color:var(--blue)">github.com/settings/tokens</a></div>
     </div>
     <div class="field">
       <label for="sFreq">Check frequency (GitHub Actions cron)</label>
@@ -1182,7 +1183,7 @@
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="settingsCancel">Cancel</button>
-      <button class="btn btn-primary" id="settingsSave">Save settings</button>
+      <button class="btn btn-primary" id="settingsSave">Save &amp; test connection</button>
     </div>
   </div>
 </div>
@@ -1214,6 +1215,73 @@ const FREQ_LABELS = {
   '0 7,18 * * *': 'Twice daily',
   '0 7 * * 1': 'Weekly Mon 7:00 UTC',
 };
+
+function getGitHubPagesDefaults() {
+  const hostMatch = location.hostname.match(/^([^.]+)\.github\.io$/i);
+  if (!hostMatch) return null;
+  const parts = location.pathname.split('/').filter(Boolean);
+  if (!parts.length) return null;
+  return { owner: hostMatch[1], repo: parts[0] };
+}
+
+function ghHeaders(token) {
+  const h = { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+  if (token) h.Authorization = `Bearer ${token}`;
+  return h;
+}
+
+function normalizeToken(raw) {
+  return String(raw || '').trim().replace(/\s+/g, '');
+}
+
+function ensureGitHubDefaults() {
+  const defaults = getGitHubPagesDefaults();
+  if (!defaults) return;
+  const c = getCreds();
+  if (!c.owner || !c.repo) setCreds({ owner: c.owner || defaults.owner, repo: c.repo || defaults.repo });
+}
+
+async function testGitHubConnection(owner, repo, token) {
+  if (!owner || !repo) throw new Error('Enter your GitHub username and repository name.');
+  if (!token) throw new Error('Paste your personal access token.');
+
+  const repoRes = await fetch(`${API}/repos/${owner}/${repo}`, { headers: ghHeaders(token) });
+  if (repoRes.status === 401) {
+    throw new Error('Token rejected (401). Create a new fine-grained token with access to this repo.');
+  }
+  if (repoRes.status === 404) {
+    throw new Error(`Repository not found. Use username "${owner}" and repo "${repo}".`);
+  }
+  if (!repoRes.ok) {
+    throw new Error(`GitHub repo check failed (${repoRes.status}).`);
+  }
+
+  const cfgRes = await fetch(`${API}/repos/${owner}/${repo}/contents/config.json`, { headers: ghHeaders(token) });
+  if (cfgRes.status === 403) {
+    throw new Error('Token lacks Contents permission. Set Contents to Read and write for website-watcher.');
+  }
+  if (!cfgRes.ok) {
+    throw new Error(`Cannot read config.json (${cfgRes.status}). Check repo name and token scope.`);
+  }
+
+  const wfRes = await fetch(`${API}/repos/${owner}/${repo}/actions/workflows/check.yml`, { headers: ghHeaders(token) });
+  if (wfRes.status === 403) {
+    throw new Error('Token lacks Actions permission. Set Actions to Read and write for Check now to work.');
+  }
+  if (!wfRes.ok) {
+    throw new Error(`Cannot access workflow (${wfRes.status}).`);
+  }
+
+  return true;
+}
+
+function setSettingsStatus(text, kind) {
+  const el = $('settingsStatus');
+  if (!text) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.className = 'insight ' + (kind || 'neutral');
+  el.textContent = text;
+}
 
 function getCreds() {
   return {
@@ -1256,9 +1324,12 @@ function hideLoading() {
 async function ghGetFile(path) {
   const { owner, repo, token } = getCreds();
   const res = await fetch(`${API}/repos/${owner}/${repo}/contents/${path}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    headers: ghHeaders(token),
   });
-  if (!res.ok) throw new Error(`Could not read ${path} (${res.status}). Check Settings.`);
+  if (res.status === 401) throw new Error('Token expired or invalid. Open Settings and paste a new token.');
+  if (res.status === 403) throw new Error('Token lacks permission for this repo. Needs Contents read/write.');
+  if (res.status === 404) throw new Error(`Could not find ${path}. Check username and repo in Settings.`);
+  if (!res.ok) throw new Error(`Could not read ${path} (${res.status}).`);
   const data = await res.json();
   const content = decodeURIComponent(escape(atob(data.content)));
   return { content, sha: data.sha };
@@ -1306,9 +1377,11 @@ async function ghPutFile(path, contentStr, sha, message) {
   const body = { message, content: btoa(unescape(encodeURIComponent(contentStr))), sha };
   const res = await fetch(`${API}/repos/${owner}/${repo}/contents/${path}`, {
     method: 'PUT',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
+  if (res.status === 401) throw new Error('Token expired or invalid. Paste a new token in Settings.');
+  if (res.status === 403) throw new Error('Token lacks write permission. Needs Contents read/write.');
   if (!res.ok) {
     const t = await res.text();
     throw new Error(`GitHub rejected update (${res.status}): ${t.slice(0, 180)}`);
@@ -1726,36 +1799,62 @@ $('watchSave').onclick = async () => {
 
 $('settingsBtn').onclick = () => {
   const c = getCreds();
-  $('sOwner').value = c.owner;
-  $('sRepo').value = c.repo;
-  $('sToken').value = c.token;
+  const defaults = getGitHubPagesDefaults();
+  $('sOwner').value = c.owner || defaults?.owner || '';
+  $('sRepo').value = c.repo || defaults?.repo || '';
+  $('sToken').value = '';
   $('sFreq').value = c.freq;
+  if (c.token) {
+    setSettingsStatus('Token saved in this browser. Leave token blank to keep it, or paste a new one to replace.', 'success');
+  } else {
+    setSettingsStatus('Fill in all three fields, then tap Save & test connection.', 'neutral');
+  }
   $('settingsOverlay').classList.add('open');
 };
-$('settingsCancel').onclick = () => $('settingsOverlay').classList.remove('open');
+$('settingsCancel').onclick = () => {
+  $('settingsOverlay').classList.remove('open');
+  setSettingsStatus('');
+};
 
 $('settingsSave').onclick = async () => {
   const owner = $('sOwner').value.trim();
   const repo = $('sRepo').value.trim();
-  const token = $('sToken').value.trim();
+  const prev = getCreds();
+  const token = normalizeToken($('sToken').value) || prev.token;
   const freq = $('sFreq').value;
-  const prevFreq = getCreds().freq;
-  setCreds({ owner, repo, token, freq });
+  const prevFreq = prev.freq;
 
-  if (freq !== prevFreq && token) {
-    try {
+  if (!owner || !repo) {
+    toast('Enter GitHub username and repository name.', 'err');
+    return;
+  }
+  if (!token) {
+    toast('Paste your personal access token.', 'err');
+    return;
+  }
+
+  $('settingsSave').disabled = true;
+  setSettingsStatus('Testing connection to GitHub…', 'neutral');
+  try {
+    await testGitHubConnection(owner, repo, token);
+    setCreds({ owner, repo, token, freq });
+
+    if (freq !== prevFreq) {
       const { content, sha } = await ghGetFile('.github/workflows/check.yml');
       const updated = content.replace(/- cron: '.*?'/, `- cron: '${freq}'`);
       await ghPutFile('.github/workflows/check.yml', updated, sha, 'Update check frequency');
-      toast('Settings and schedule saved', 'ok');
-    } catch (e) {
-      toast('Settings saved, but schedule update failed: ' + e.message, 'err');
     }
-  } else {
-    toast('Settings saved', 'ok');
+
+    setSettingsStatus('Connected successfully. You can use Check now and Add watch.', 'success');
+    toast('GitHub connected successfully', 'ok');
+    $('settingsOverlay').classList.remove('open');
+    await refresh();
+  } catch (e) {
+    setSettingsStatus(e.message, 'error');
+    toast(e.message, 'err');
+  } finally {
+    $('settingsSave').disabled = false;
   }
-  $('settingsOverlay').classList.remove('open');
-  await refresh();
 };
 
 $('checkNowBtn').onclick = async () => {
@@ -1783,10 +1882,12 @@ $('checkNowBtn').onclick = async () => {
   try {
     const res = await fetch(`${API}/repos/${owner}/${repo}/actions/workflows/check.yml/dispatches`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      headers: { ...ghHeaders(token), 'Content-Type': 'application/json' },
       body: JSON.stringify({ ref: 'main' }),
     });
-    if (!res.ok) throw new Error(`Could not start check (${res.status}).`);
+    if (res.status === 401) throw new Error('Token invalid. Open Settings and paste your token again.');
+    if (res.status === 403) throw new Error('Token lacks Actions permission. Update token with Actions read/write.');
+    if (!res.ok) throw new Error(`Could not start check (${res.status}). Open Settings to reconnect.`);
     toast('Check started on GitHub — refresh in 1–2 minutes', 'ok');
   } catch (e) { toast(e.message, 'err'); }
 };
@@ -1795,6 +1896,7 @@ document.querySelectorAll('.overlay').forEach((el) => {
   el.addEventListener('click', (e) => { if (e.target === el) el.classList.remove('open'); });
 });
 
+ensureGitHubDefaults();
 refresh();
 </script>
 </body>
