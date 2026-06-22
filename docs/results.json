@@ -1,11 +1,11 @@
 {
-  "last_run": "2026-06-21T16:40:35.944176+00:00",
+  "last_run": "2026-06-22T12:39:44.250015+00:00",
   "watches": [
     {
       "id": "learn2swim-stage1-morley",
       "name": "Learn2Swim - Stage 1",
       "url": "https://activeleeds.courseprogress.co.uk/onlinejoining/classes-results?filter=%7B%22showFullCourses%22:false,%22centre%22:7,%22courseGroupCategory%22:%5B1%5D%7D",
-      "checked_at": "2026-06-21T16:40:35.944195+00:00",
+      "checked_at": "2026-06-22T12:39:44.250035+00:00",
       "matched": false,
       "reason": "Keyword \"Learn2Swim - Stage 1\" not found in any course listing on the page."
     },
@@ -13,7 +13,7 @@
       "id": "zoopla-ls27-3bed",
       "name": "LS27 \u00b7 3+ beds under \u00a3275k",
       "url": "https://www.zoopla.co.uk/for-sale/property/ls27/?beds_min=3&price_max=275000&q=ls27&search_source=for-sale",
-      "checked_at": "2026-06-21T16:40:46.929599+00:00",
+      "checked_at": "2026-06-22T12:40:06.651094+00:00",
       "matched": false,
       "status": "error",
       "error": "Site blocked the automated check (Cloudflare / bot protection).",
