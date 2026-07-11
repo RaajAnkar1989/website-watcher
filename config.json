@@ -19,22 +19,6 @@
         "sold out",
         "no spaces"
       ]
-    },
-    {
-      "id": "zoopla-ls27-3bed",
-      "name": "LS27 · 3+ beds under £275k",
-      "url": "https://www.zoopla.co.uk/for-sale/property/ls27/?beds_min=3&price_max=275000&q=ls27&search_source=for-sale",
-      "mode": "browser",
-      "type": "listings",
-      "listings_site": "zoopla",
-      "keywords_all": [
-        "LS27"
-      ],
-      "filters": {
-        "beds_min": 3,
-        "price_max": 275000
-      },
-      "notes": "Tracks Zoopla search results and highlights newly seen listings since the last check."
     }
   ]
 }
