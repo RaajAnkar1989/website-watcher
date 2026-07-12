@@ -1,14 +1,14 @@
 {
-  "last_run": "2026-07-12T07:24:35.891012+00:00",
+  "last_run": "2026-07-12T07:25:43.433644+00:00",
   "watches": [
     {
       "id": "learn2swim-stage1-morley",
-      "name": "Learn2Swim - Stage 1",
+      "name": "Learn2Swim - Stage 4",
       "url": "https://activeleeds.courseprogress.co.uk/onlinejoining/classes-results?filter=%7B%22showFullCourses%22:false,%22centre%22:7,%22courseGroupCategory%22:%5B1%5D%7D",
-      "checked_at": "2026-07-12T07:24:35.891029+00:00",
+      "checked_at": "2026-07-12T07:25:43.433662+00:00",
       "matched": true,
       "status": "available",
-      "snippet": "Learn2Swim - Stage 1 (5yrs & above) Saturday 10:00 - 10:30 Start Date 18 July 2026 Book this course Spaces left: 1 out of 6",
+      "snippet": "Learn2Swim - Stage 4 Tuesday 16:20 - 16:50 Start Date 14 July 2026 Book this course Spaces left: 1 out of 9",
       "signals": {
         "available": [
           "book this course",
@@ -20,10 +20,10 @@
       "keyword_spread": 0,
       "spaces": {
         "left": 1,
-        "total": 6
+        "total": 9
       },
-      "course_hint": "Learn2Swim - Stage 1 (5yrs & above) Saturday 10:00 - 10:30 Start Date 18 July 2026 Book this course Spaces left: 1 out of 6",
-      "action_url": "https://activeleeds.courseprogress.co.uk/onlinejoining/classes-results?filter=%7B%22showFullCourses%22:false,%22centre%22:7,%22courseGroupCategory%22:%5B1%5D%7D#:~:text=Learn2Swim%20-%20Stage%201%20%285yrs%20%26%20above%29%20Saturday%2010%3A00%20-%2010%3A30%20Start%20Date%2018%20July%202026%20Book%20this%20course%20Spaces%20left%3A%201%20out%20of%206",
+      "course_hint": "Learn2Swim - Stage 4 Tuesday 16:20 - 16:50 Start Date 14 July 2026 Book this course Spaces left: 1 out of 9",
+      "action_url": "https://activeleeds.courseprogress.co.uk/onlinejoining/classes-results?filter=%7B%22showFullCourses%22:false,%22centre%22:7,%22courseGroupCategory%22:%5B1%5D%7D#:~:text=Learn2Swim%20-%20Stage%204%20Tuesday%2016%3A20%20-%2016%3A50%20Start%20Date%2014%20July%202026%20Book%20this%20course%20Spaces%20left%3A%201%20out%20of%209",
       "action_label": "Book this course"
     }
   ]
