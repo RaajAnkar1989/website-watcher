@@ -1,11 +1,11 @@
 {
-  "last_run": "2026-09-19T11:38:26.522007+00:00",
+  "last_run": "2026-09-20T11:52:47.789177+00:00",
   "watches": [
     {
       "id": "learn2swim-stage1-morley",
       "name": "Learn2Swim - Stage 4",
       "url": "https://activeleeds.courseprogress.co.uk/onlinejoining/classes-results?filter=%7B%22showFullCourses%22:false,%22centre%22:7,%22courseGroupCategory%22:%5B1%5D%7D",
-      "checked_at": "2026-09-19T11:38:26.522022+00:00",
+      "checked_at": "2026-09-20T11:52:47.789193+00:00",
       "matched": true,
       "status": "available",
       "snippet": "Learn2Swim - Stage 4 Tuesday 15:45 - 16:15 Start Date 22 September 2026 Book this course Spaces left: 1 out of 9",
