@@ -1,14 +1,13 @@
 {
-  "last_run": "2026-10-21T12:29:24.836802+00:00",
+  "last_run": "2026-10-22T12:38:00.452613+00:00",
   "watches": [
     {
       "id": "learn2swim-stage1-morley",
       "name": "Learn2Swim - Stage 4",
       "url": "https://activeleeds.courseprogress.co.uk/onlinejoining/classes-results?filter=%7B%22showFullCourses%22:false,%22centre%22:7,%22courseGroupCategory%22:%5B1%5D%7D",
-      "checked_at": "2026-10-21T12:29:24.836823+00:00",
-      "status": "error",
-      "error": "Page.goto: Timeout 90000ms exceeded.\nCall log:\nnavigating to \"https://activeleeds.courseprogress.co.uk/onlinejoining/classes-results?filter=%7B%22showFullCourses%22:false,%22centre%22:7,%22courseGroupCategory%22:%5B1%5D%7D\", waiting until \"domcontentloaded\"\n",
-      "traceback": "tedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/playwright/sync_api/_generated.py\", line 8838, in goto\n    self._sync(\n  File \"/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/playwright/_impl/_sync_base.py\", line 115, in _sync\n    return task.result()\n           ^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/playwright/_impl/_page.py\", line 524, in goto\n    return await self._main_frame.goto(**locals_to_params(locals()))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/playwright/_impl/_frame.py\", line 145, in goto\n    await self._channel.send(\"goto\", locals_to_params(locals()))\n  File \"/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 59, in send\n    return await self._connection.wrap_api_call(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py\", line 514, in wrap_api_call\n    raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None\nplaywright._impl._errors.TimeoutError: Page.goto: Timeout 90000ms exceeded.\nCall log:\nnavigating to \"https://activeleeds.courseprogress.co.uk/onlinejoining/classes-results?filter=%7B%22showFullCourses%22:false,%22centre%22:7,%22courseGroupCategory%22:%5B1%5D%7D\", waiting until \"domcontentloaded\"\n\n"
+      "checked_at": "2026-10-22T12:38:00.452631+00:00",
+      "matched": false,
+      "reason": "Keyword \"Learn2Swim - Stage 4\" not found in any course listing on the page."
     }
   ]
 }
